@@ -63,7 +63,7 @@ public class REDISGameStatePersistence implements GameStatePersistence{
         if(partida.guessWord(player, word)){
             Map<String,String> partidaActualizar=new HashMap<>();
             partidaActualizar.put("palabra",partidaRedis.get("palabra"));
-            partidaActualizar.put("adivinado",partidaRedis.get("adivinado"));
+            partidaActualizar.put("adivinado",word);
             partidaActualizar.put("ganador",player);
             partidaActualizar.put("partida","true");
             jedis.hmset("partida:" + gameid, partidaActualizar);
