@@ -60,14 +60,14 @@ public class REDISGameStatePersistence implements GameStatePersistence{
         HangmanGame partida = new HangmanGame(partidaRedis.get("palabra")
                 ,partidaRedis.get("adivinado"),partidaRedis.get("ganador")
                 ,partidaRedis.get("partida").equals("true"));
-        if(partida.guessWord(player, word)){
+        gano=partida.guessWord(player, word);
+        if(gano){
             Map<String,String> partidaActualizar=new HashMap<>();
             partidaActualizar.put("palabra",partidaRedis.get("palabra"));
             partidaActualizar.put("adivinado",word);
             partidaActualizar.put("ganador",player);
             partidaActualizar.put("partida","true");
             jedis.hmset("partida:" + gameid, partidaActualizar);
-            gano=true;
        }
         jedis.close();
        return gano;
