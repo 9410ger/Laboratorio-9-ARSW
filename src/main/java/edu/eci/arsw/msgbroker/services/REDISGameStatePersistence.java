@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Response;
 import redis.clients.jedis.Transaction;
 
 /**
@@ -65,14 +66,13 @@ public class REDISGameStatePersistence implements GameStatePersistence{
         if(gano){
             jedis.watch("adivinado", "ganador", "partida");
             Transaction t = jedis.multi();
-            t.set(word, player,"true");
-            t.exec();
             Map<String,String> partidaActualizar=new HashMap<>();
             partidaActualizar.put("palabra",partidaRedis.get("palabra"));
             partidaActualizar.put("adivinado",word);
             partidaActualizar.put("ganador",player);
             partidaActualizar.put("partida","true");
-            jedis.hmset("partida:" + gameid, partidaActualizar);
+            t.hmset("partida:" + gameid, partidaActualizar);
+            t.exec();
        }
         jedis.close();
        return gano;
