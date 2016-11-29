@@ -45,12 +45,13 @@ public class REDISGameStatePersistence implements GameStatePersistence{
                 ,partidaRedis.get("adivinado"),partidaRedis.get("ganador")
                 ,partidaRedis.get("partida").equals("true"));
         partida.addLetter(c);
-        Map<String,String> partidaActualizar=new HashMap<>();
+        /*Map<String,String> partidaActualizar=new HashMap<>();
             partidaActualizar.put("palabra",partidaRedis.get("palabra"));
             partidaActualizar.put("adivinado",partida.getCurrentGuessedWord());
             partidaActualizar.put("ganador",partidaRedis.get("ganador"));
             partidaActualizar.put("partida",partidaRedis.get("partida"));
-            jedis.hmset("partida:" + gameid, partidaActualizar);
+            jedis.hmset("partida:" + gameid, partidaActualizar);*/
+        jedis.hset("partida:"+gameid, "adivinado", partida.getCurrentGuessedWord());
         jedis.close();
     }
 
@@ -64,14 +65,17 @@ public class REDISGameStatePersistence implements GameStatePersistence{
                 ,partidaRedis.get("partida").equals("true"));
         gano=partida.guessWord(player, word);
         if(gano){
-            jedis.watch("adivinado", "ganador", "partida");
+            jedis.watch("ganador", "partida");
             Transaction t = jedis.multi();
-            Map<String,String> partidaActualizar=new HashMap<>();
+            /*Map<String,String> partidaActualizar=new HashMap<>();
             partidaActualizar.put("palabra",partidaRedis.get("palabra"));
             partidaActualizar.put("adivinado",word);
             partidaActualizar.put("ganador",player);
             partidaActualizar.put("partida","true");
-            t.hmset("partida:" + gameid, partidaActualizar);
+            t.hmset("partida:" + gameid, partidaActualizar);*/
+            t.hset("partida:"+gameid, "adivinado", word);
+            t.hset("partida:"+gameid, "ganador", partida.getWinnerName());
+            t.hset("partida:"+gameid, "partida", "true");
             t.exec();
        }
         jedis.close();
